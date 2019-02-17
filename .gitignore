@@ -1,0 +1,9 @@
+*.pyc
+*.exe
+*.dll
+*.bat
+*.cmd
+
+BACKUP/
+thirdparty/
+testdata/
