@@ -104,7 +104,6 @@ class Differ:
             value = value.strip(".")
         return value
 
-
     def printDifference(self, sheetIndex, recordIndex, fieldIndex, field1, field2):
         indicator = self.indicator(sheetIndex, recordIndex, fieldIndex)
         print indicator, "<" + field1 + ">", "<" + field2 + ">"

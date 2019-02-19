@@ -81,7 +81,7 @@ class TextFileReader(FileReader):
 
     #
     # Read a tab separated text file and store the records in self.sheets.
-    # Text files have exactly one worksheet/table.
+    # Text files have exactly one worksheet with one table.
     #
     def getWorkbook(self):
         self.workbook = Workbook()
@@ -165,7 +165,7 @@ class XMLFileReader(FileReader):
         return tokens[-1]
 
     def getAttribute(self, anElement, aString):
-        for k, v in anElement.items():
-            if self.strippedTag(k) == aString:
-                return v
+        for key, value in anElement.items():
+            if self.strippedTag(key) == aString:
+                return value
         return None
