@@ -108,27 +108,48 @@ class XMLFileReader(FileReader):
                 self.processWorksheet(each)
         return self.workbook
 
-    def processWorksheet(self, anXMLElement):
+    def processWorksheet(self, anElement):
         self.currentSheet = Sheet()
         self.workbook.addSheet(self.currentSheet)
-        for each in anXMLElement:
+        for each in anElement:
             if self.hasTag(each, "Table"):
                 self.processTable(each)
 
-    def processTable(self, anXMLElement):
-        for each in anXMLElement:
+    def processTable(self, anElement):
+        for each in anElement:
             if self.hasTag(each, "Row"):
                 self.processRow(each)
 
-    def processRow(self, anXMLElement):
+    def processRow(self, anElement):
+        index = self.getAttribute(anElement, "Index")
+        if index is not None:
+            assert index.isdigit(), "numeric row index expected"
+            index = int(index)
+            assert index > len(self.currentSheet.records)
+            for i in range(len(self.currentSheet.records), index - 1):
+                self.currentSheet.addRecord([])
         self.currentRecord = []
         self.currentSheet.addRecord(self.currentRecord)
-        for each in anXMLElement:
+        for each in anElement:
             if self.hasTag(each, "Cell"):
                 self.processCell(each)
 
-    def processCell(self, anXMLElement):
-        for each in anXMLElement:
+    def processCell(self, anElement):
+        index = self.getAttribute(anElement, "Index")
+        if index is not None:
+            assert index.isdigit(), "numeric column index expected"
+            index = int(index)
+            assert index > len(self.currentRecord)
+            for i in range(len(self.currentRecord), index - 1):
+                self.currentRecord.append("")
+        formula = self.getAttribute(anElement, "Formula")
+        if formula is not None:
+            self.currentRecord.append(formula)
+            return
+        if list(anElement) == []:
+            self.currentRecord.append("")
+            return
+        for each in anElement:
             if self.hasTag(each, "Data"):
                 self.processData(each)
 
@@ -136,12 +157,15 @@ class XMLFileReader(FileReader):
         self.currentRecord.append(anElement.text)
 
     def hasTag(self, anElement, tagName):
-        return self.extractTag(anElement) == tagName
+        return self.strippedTag(anElement.tag) == tagName
 
-    def extractTag(self, anElement):
-        tokens = anElement.tag.split("}")
+    def strippedTag(self, aString):
+        tokens = aString.split("}")
         assert(len(tokens) == 2)
         return tokens[-1]
 
-
-
+    def getAttribute(self, anElement, aString):
+        for k, v in anElement.items():
+            if self.strippedTag(k) == aString:
+                return v
+        return None
