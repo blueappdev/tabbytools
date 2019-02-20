@@ -12,9 +12,9 @@ import lib.tableparser
 class Differ:
     def __init__(self, someArguments):
         self.options, self.arguments = getopt.getopt(someArguments, "s:h")
-        self.maxNumberOfDifferences = 20
 
     def process(self):
+        self.maxNumberOfDifferences = 20
         self.workbook1 = None
         self.workbook2 = None
         self.indexesToProcess = None  # by default process all worksheets

@@ -6,9 +6,8 @@
 #
 
 import sys
-import lib.tableparser
 import lib.tableprinter
 
 if __name__ == "__main__":
-    lib.tableprinter.Formatter(sys.argv[1:])
+    lib.tableprinter.Formatter(sys.argv[1:]).process()
 

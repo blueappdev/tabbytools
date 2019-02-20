@@ -18,32 +18,13 @@ def exit(*args):
 
 class Formatter:
     def __init__(self, someArguments):
-        self.indexesToExtract = None  # by default extract all worksheets
-        options, arguments = getopt.getopt(someArguments, "s:h")
-
-        for key, value in options:
-             if key == "-h":
-                  self.usage()
-                  exit()
-             elif key == "-s":
-                 self.setWorksheetsToExtractFromOptionValue(value)    
-             else:
-                 exit("unsupported option [%s]" % key)
-
-        if arguments == []:
-            exit("no arguments found")
-
-        self.counter = 0
-        for pattern in arguments:
-            for file in glob.glob(pattern):
-                self.processFile(file)
-        if self.counter == 0:
-            exit("no files found")
+        self.options, self.arguments = getopt.getopt(someArguments, "s:hl")
 
     def usage(self):
         print "tabby.py: extract excel data"
         print "usage: tabby.py [-h] [-s num] file [ file...]"
         print "  -h - help"
+        print "  -l - list of key value pairs"
         print "  -s num (integer)"
         print "    extract worksheet with index num,"
         print "    e.g -s 2 extracts the second workseet"
@@ -62,7 +43,7 @@ class Formatter:
             if sheet is None:
                 exit("worksheet", str(each), "not found")
             else:
-                self.printSheet(sheet)
+                self.outputSheet(sheet)
         self.counter += 1
     
     # The index is based on one and not on zero.
@@ -73,6 +54,23 @@ class Formatter:
         else:
             return None
 
+    def outputSheet(self, aSheet):
+        if self.listMode:
+            self.listSheet(aSheet)
+        else:
+            self.printSheet(aSheet)
+            
+    def listSheet(self, aSheet):
+        for each in aSheet.records:
+            self.listRecord(each)
+            
+    def listRecord(self, aRecord):
+        for each in aRecord:
+            self.listCell(each)
+            
+    def listCell(self, aCell):
+        print aCell
+        
     #
     # A sheet is a list of records.
     #
@@ -92,7 +90,29 @@ class Formatter:
                 else:
                     print value.ljust(widths[index]),
             print
+            
+    def process(self):
+        self.indexesToExtract = None  # by default extract all worksheets
+        self.listMode = False
 
-if __name__ == "__main__":
-    Formatter(sys.argv[1:])
+        for key, value in self.options:
+            if key == "-h":
+                self.usage()
+                exit()
+            elif key == "-s":
+                self.setWorksheetsToExtractFromOptionValue(value)    
+            elif key == "-l":
+                self.listMode = True
+            else:
+                exit("unsupported option [%s]" % key)
+
+        if self.arguments == []:
+            exit("no arguments found")
+            
+        self.counter = 0
+        for pattern in self.arguments:
+            for file in glob.glob(pattern):
+                self.processFile(file)
+        if self.counter == 0:
+            exit("no files found")
 
