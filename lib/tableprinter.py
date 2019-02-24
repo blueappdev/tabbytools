@@ -18,11 +18,13 @@ def exit(*args):
 
 class Formatter:
     def __init__(self, someArguments):
-        self.options, self.arguments = getopt.getopt(someArguments, "s:hl")
+        self.options, self.arguments = getopt.getopt(someArguments, "s:hlfg")
 
     def process(self):
         self.indexesToExtract = None  # by default extract all worksheets
         self.listMode = False
+        self.formulaMode = False
+        self.absoluteFormulaMode = False
 
         for key, value in self.options:
             if key == "-h":
@@ -32,6 +34,11 @@ class Formatter:
                 self.setWorksheetsToExtractFromOptionValue(value)    
             elif key == "-l":
                 self.listMode = True
+            elif key == "-f":
+                self.formulaMode = True
+            elif key == "-g":
+                self.formulaMode = True
+                self.absoluteFormulaMode = True
             else:
                 exit("unsupported option [%s]" % key)
 
@@ -53,12 +60,16 @@ class Formatter:
         print "  -s num (integer)"
         print "    extract worksheet with index num,"
         print "    e.g -s 2 extracts the second workseet"
-
+        print "  -f use formulas"
+        print "  -g use formulas (converted to absolute references)"
+        
     def setWorksheetsToExtractFromOptionValue(self, optionValue):
         self.indexesToExtract = [ int(optionValue) ]
 
     def processFile(self, aFilename):
-        self.workbook = tableparser.FileReaderInterface(aFilename).getWorkbook()
+        reader = tableparser.FileReaderInterface(aFilename).getFileReader()
+        reader.setFormulaMode(self.formulaMode)
+        self.workbook = reader.getWorkbook()
         indexes = self.indexesToExtract
         if indexes is None:
             indexes = range(1, len(self.workbook.sheets) + 1)

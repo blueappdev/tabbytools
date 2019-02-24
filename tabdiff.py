@@ -11,21 +11,24 @@ import lib.tableparser
 
 class Differ:
     def __init__(self, someArguments):
-        self.options, self.arguments = getopt.getopt(someArguments, "s:h")
+        self.options, self.arguments = getopt.getopt(someArguments, "s:hfg")
 
     def process(self):
         self.maxNumberOfDifferences = 20
+        self.formulaMode = False
         self.workbook1 = None
         self.workbook2 = None
         self.indexesToProcess = None  # by default process all worksheets
         for key, value in self.options:
-             if key == "-h":
-                  self.usage()
-                  exit()
-             elif key == "-s":
-                 self.setWorksheetsToProcessFromOptionValue(value)
-             else:
-                 exit("unsupported option [%s]" % key)
+            if key == "-h":
+                 self.usage()
+                 exit()
+            elif key == "-s":
+                self.setWorksheetsToProcessFromOptionValue(value)
+            elif key == "-f":
+                self.formulaMode = True
+            else:
+                exit("unsupported option [%s]" % key)
         if self.arguments == []:
             exit("no arguments found")
         for pattern in self.arguments:
@@ -43,7 +46,9 @@ class Differ:
         exit("Too many files")
 
     def readFile(self, aFilename):
-        return lib.tableparser.FileReaderInterface(aFilename).getWorkbook()
+        reader = lib.tableparser.FileReaderInterface(aFilename).getFileReader()
+        reader.setFormulaMode(self.formulaMode)
+        return reader.getWorkbook()
 
     def compare(self):
         self.numberOfDifferences = 0

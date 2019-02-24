@@ -68,12 +68,19 @@ class FileReaderInterface:
         stream.close()
         return contents.startswith("PK")
 
+    def getFileReader(self):
+        return self.getFileReaderClass()(self.filename)
+        
     def getWorkbook(self):
-        return self.getFileReaderClass()(self.filename).getWorkbook()
+        return self.getFileReader().getWorkbook()
         
 class FileReader:
     def __init__(self, aFilename):
         self.filename = aFilename
+        self.formulaMode = False
+    
+    def setFormulaMode(self, aBoolean):
+        self.formulaMode = aBoolean
 
 class TextFileReader(FileReader):
     def __init__(self, aFilename):
@@ -142,10 +149,11 @@ class XMLFileReader(FileReader):
             assert index > len(self.currentRecord)
             for i in range(len(self.currentRecord), index - 1):
                 self.currentRecord.append("")
-        formula = self.getAttribute(anElement, "Formula")
-        if formula is not None:
-            self.currentRecord.append(formula)
-            return
+        if self.formulaMode:
+            formula = self.getAttribute(anElement, "Formula")
+            if formula is not None:
+                self.currentRecord.append(formula)
+                return
         if list(anElement) == []:
             self.currentRecord.append("")
             return
