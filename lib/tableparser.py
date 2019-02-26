@@ -162,7 +162,10 @@ class XMLFileReader(FileReader):
                 self.processData(each)
 
     def processData(self, anElement):
-        self.currentRecord.append(anElement.text)
+        value = anElement.text
+        if value is None:
+            value = ""
+        self.currentRecord.append(value)
 
     def hasTag(self, anElement, tagName):
         return self.strippedTag(anElement.tag) == tagName
