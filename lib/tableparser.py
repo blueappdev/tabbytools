@@ -142,13 +142,7 @@ class XMLFileReader(FileReader):
                 self.processCell(each)
 
     def processCell(self, anElement):
-        index = self.getAttribute(anElement, "Index")
-        if index is not None:
-            assert index.isdigit(), "numeric column index expected"
-            index = int(index)
-            assert index > len(self.currentRecord)
-            for i in range(len(self.currentRecord), index - 1):
-                self.currentRecord.append("")
+        self.processCellIndex(anElement)
         if self.formulaMode:
             formula = self.getAttribute(anElement, "Formula")
             if formula is not None:
@@ -156,11 +150,33 @@ class XMLFileReader(FileReader):
                 return
         if list(anElement) == []:
             self.currentRecord.append("")
-            return
-        for each in anElement:
-            if self.hasTag(each, "Data"):
-                self.processData(each)
+        else:
+            for each in anElement:
+                if self.hasTag(each, "Data"):
+                    self.processData(each)
+        self.processCellMergeAcross(anElement)
 
+    def processCellIndex(self, anElement):
+        index = self.getAttribute(anElement, "Index")
+        if index is None:
+            return
+        assert index.isdigit(), "numeric column index expected"
+        index = int(index)
+        assert index > len(self.currentRecord)
+        for i in range(len(self.currentRecord), index - 1):
+            self.currentRecord.append("")
+
+    def processCellMergeAcross(self, anElement):
+        mergeAcross = self.getAttribute(anElement, "MergeAcross")
+        if mergeAcross is None:
+            return
+        assert mergeAcross.isdigit(), "numeric MergeAcross expected"
+        mergeAcross = int(mergeAcross)
+        assert mergeAcross >= 1
+        for i in range(mergeAcross):
+            self.currentRecord.append("")
+
+        
     def processData(self, anElement):
         value = anElement.text
         if value is None:
