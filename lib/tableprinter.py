@@ -21,7 +21,7 @@ class Formatter:
         self.options, self.arguments = getopt.getopt(someArguments, "s:hlfg")
 
     def process(self):
-        self.indexesToExtract = None  # by default extract all worksheets
+        self.indexesToProcess = None  # by default extract all worksheets
         self.listMode = False
         self.formulaMode = False
         self.absoluteFormulaMode = False
@@ -31,7 +31,7 @@ class Formatter:
                 self.usage()
                 exit()
             elif key == "-s":
-                self.setWorksheetsToExtractFromOptionValue(value)    
+                self.setWorksheetsToProcessFromOptionValue(value)    
             elif key == "-l":
                 self.listMode = True
             elif key == "-f":
@@ -63,14 +63,14 @@ class Formatter:
         print "  -f use formulas"
         print "  -g use formulas (converted to absolute references)"
         
-    def setWorksheetsToExtractFromOptionValue(self, optionValue):
-        self.indexesToExtract = [ int(optionValue) ]
+    def setWorksheetsToProcessFromOptionValue(self, optionValue):
+        self.indexesToProcess = [ int(optionValue) ]
 
     def processFile(self, aFilename):
         reader = tableparser.FileReaderInterface(aFilename).getFileReader()
         reader.setFormulaMode(self.formulaMode)
         self.workbook = reader.getWorkbook()
-        indexes = self.indexesToExtract
+        indexes = self.indexesToProcess
         if indexes is None:
             indexes = range(1, len(self.workbook.sheets) + 1)
         #print "indexes", indexes

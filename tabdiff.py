@@ -35,7 +35,10 @@ class Differ:
             for file in glob.glob(pattern):
                 self.processFile(file)
         self.compare()
-
+        
+    def setWorksheetsToProcessFromOptionValue(self, optionValue):
+        self.indexesToProcess = [ int(optionValue) ]
+        
     def processFile(self, aFilename):
         if self.workbook1 is None:
             self.workbook1 = self.readFile(aFilename)
