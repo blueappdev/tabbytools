@@ -7,9 +7,10 @@
 
 import sys, getopt, glob
 import string
-import lib.tableparser
+import lib.tabbybase
+import lib.tabbyparser
 
-class Differ:
+class Differ(lib.tabbybase.TabbyBaseTool):
     def __init__(self, someArguments):
         self.options, self.arguments = getopt.getopt(someArguments, "s:hfg")
 
@@ -49,7 +50,7 @@ class Differ:
         exit("Too many files")
 
     def readFile(self, aFilename):
-        reader = lib.tableparser.FileReaderInterface(aFilename).getFileReader()
+        reader = lib.tabbyparser.FileReaderInterface(aFilename).getFileReader()
         reader.setFormulaMode(self.formulaMode)
         return reader.getWorkbook()
 

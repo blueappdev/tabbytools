@@ -6,8 +6,8 @@
 #
 
 import sys
-import lib.tableprinter
+import lib.tabbyprinter
 
 if __name__ == "__main__":
-    lib.tableprinter.Formatter(sys.argv[1:]).process()
+    lib.tabbyprinter.Formatter(sys.argv[1:]).process()
 
