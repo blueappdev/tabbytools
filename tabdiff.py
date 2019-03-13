@@ -12,6 +12,7 @@ import lib.tabbyparser
 
 class Differ(lib.tabbybase.TabbyBaseTool):
     def __init__(self, someArguments):
+        lib.tabbybase.TabbyBaseTool.__init__(self)
         self.options, self.arguments = getopt.getopt(someArguments, "s:hfg")
 
     def process(self):
@@ -36,9 +37,6 @@ class Differ(lib.tabbybase.TabbyBaseTool):
             for file in glob.glob(pattern):
                 self.processFile(file)
         self.compare()
-        
-    def setWorksheetsToProcessFromOptionValue(self, optionValue):
-        self.indexesToProcess = [ int(optionValue) ]
         
     def processFile(self, aFilename):
         if self.workbook1 is None:

@@ -16,8 +16,9 @@ def exit(*args):
         print 
     sys.exit(2)
 
-class Formatter:
+class Formatter(lib.tabbybase.TabbyBaseTool):
     def __init__(self, someArguments):
+        lib.tabbybase.TabbyBaseTool.__init__(self)
         self.options, self.arguments = getopt.getopt(someArguments, "s:hlfg")
 
     def process(self):
@@ -62,9 +63,7 @@ class Formatter:
         print "    e.g -s 2 extracts the second workseet"
         print "  -f use formulas"
         print "  -g use formulas (converted to absolute references)"
-        
-    def setWorksheetsToProcessFromOptionValue(self, optionValue):
-        self.indexesToProcess = [ int(optionValue) ]
+       
 
     def processFile(self, aFilename):
         reader = tableparser.FileReaderInterface(aFilename).getFileReader()
