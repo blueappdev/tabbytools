@@ -7,12 +7,10 @@
 
 class TabbyBaseTool:
     def __init__(self):
-        self.indexesToProcess = None # by default all sheets
+        self.indexesToProcess = [] # by default all sheets
         
     def setWorksheetsToProcessFromOptionValue(self, aString):
         for each in aString.split(","):
-            if self.indexesToProcess is None:
-                self.indexesToProcess = []
             parts = each.split("-")
             for each in parts:
                 assert each.isdigit(), "digits expected"

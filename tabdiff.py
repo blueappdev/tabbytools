@@ -13,22 +13,23 @@ import lib.tabbyparser
 class Differ(lib.tabbybase.TabbyBaseTool):
     def __init__(self, someArguments):
         lib.tabbybase.TabbyBaseTool.__init__(self)
-        self.options, self.arguments = getopt.getopt(someArguments, "s:hfg")
+        self.options, self.arguments = getopt.getopt(someArguments, "s:hfe:")
 
     def process(self):
-        self.maxNumberOfDifferences = 20
-        self.formulaMode = False
+        self.maxNumberOfDifferences = None
+        self.resolveFormulas = False
         self.workbook1 = None
         self.workbook2 = None
-        self.indexesToProcess = None  # by default process all worksheets
         for key, value in self.options:
             if key == "-h":
                  self.usage()
                  exit()
+            elif key == "-e":
+                self.maxNumberOfDifferences = int(value)
             elif key == "-s":
                 self.setWorksheetsToProcessFromOptionValue(value)
             elif key == "-f":
-                self.formulaMode = True
+                self.resolveFormulas = True
             else:
                 exit("unsupported option [%s]" % key)
         if self.arguments == []:
@@ -37,6 +38,14 @@ class Differ(lib.tabbybase.TabbyBaseTool):
             for file in glob.glob(pattern):
                 self.processFile(file)
         self.compare()
+    
+    def usage(self):
+        print "tabdiff.py"
+        print "-e num  - limit the number of reported errors"
+        print "-f      - resolve formulas"
+        print "-h      - help"
+        print "-s num  - sheet numbers to compare"
+        print "-s 1,3,6-8"
         
     def processFile(self, aFilename):
         if self.workbook1 is None:
@@ -49,7 +58,7 @@ class Differ(lib.tabbybase.TabbyBaseTool):
 
     def readFile(self, aFilename):
         reader = lib.tabbyparser.FileReaderInterface(aFilename).getFileReader()
-        reader.setFormulaMode(self.formulaMode)
+        reader.resolveFormulas = self.resolveFormulas
         return reader.getWorkbook()
 
     def compare(self):
@@ -62,8 +71,9 @@ class Differ(lib.tabbybase.TabbyBaseTool):
             print "Number of worksheets is different"
         numberOfSheets = min(numberOfSheets1, numberOfSheets2)
         indexes = self.indexesToProcess
-        if indexes is None:
+        if indexes == []:
             indexes = range(1, numberOfSheets + 1)
+        print indexes
         for each in indexes:
             sheet1 = self.workbook1.getSheetWithIndex(each)
             sheet2 = self.workbook2.getSheetWithIndex(each)
@@ -90,8 +100,10 @@ class Differ(lib.tabbybase.TabbyBaseTool):
             if field1 != field2:
                  self.printDifference(sheetIndex, recordIndex, each, field1, field2)
                  self.numberOfDifferences += 1
-                 if self.numberOfDifferences > self.maxNumberOfDifferences:
-                     sys.exit(1)
+                 if self.maxNumberOfDifferences is not None:
+                    if self.numberOfDifferences > self.maxNumberOfDifferences:
+                        print "More differences skipped."
+                        sys.exit(1)
 
     # The index is based on one and not on zero.
     def getField(self, record, index, default = ""):
