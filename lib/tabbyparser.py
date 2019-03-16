@@ -77,10 +77,7 @@ class FileReaderInterface:
 class FileReader:
     def __init__(self, aFilename):
         self.filename = aFilename
-        self.formulaMode = False
-    
-    def setFormulaMode(self, aBoolean):
-        self.formulaMode = aBoolean
+        self.resolveFormulas = False
 
 class TextFileReader(FileReader):
     def __init__(self, aFilename):
@@ -143,7 +140,7 @@ class XMLFileReader(FileReader):
 
     def processCell(self, anElement):
         self.processCellIndex(anElement)
-        if self.formulaMode:
+        if not self.resolveFormulas:
             formula = self.getAttribute(anElement, "Formula")
             if formula is not None:
                 self.currentRecord.append(formula)
